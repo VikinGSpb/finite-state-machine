@@ -4,8 +4,8 @@ class FSM {
      * @param config
      */
     constructor(config) {
-        this.initialState = config.initial;
-        this.activeState = config.initial;
+        this.initialState = 0;
+        this.activeState = 0;
         this.states = [];
         this.transitions = [];
         for(let key in config.states)
@@ -21,7 +21,7 @@ class FSM {
      * @returns {String}
      */
     getState() {
-        return this.activeState;
+        return this.statesHistory[this.activeState];
     }
 
     /**
@@ -30,8 +30,8 @@ class FSM {
      */
     changeState(state) {
         if(this.states.includes(state)) {
-            this.activeState = state;
             this.statesHistory.push(state);
+            this.activeState++;
         }
         else throw new Error;
     }
@@ -41,7 +41,7 @@ class FSM {
      * @param event
      */
     trigger(event) {
-        let element = this.transitions[this.states.indexOf(this.activeState)];
+        let element = this.transitions[this.states.indexOf(this.statesHistory[this.activeState])];
         if(Object.keys(element).includes(event)) this.changeState(element[event]);
         else throw new Error;
     }
@@ -75,10 +75,10 @@ class FSM {
      * @returns {Boolean}
      */
     undo() {
-        if(this.statesHistory.indexOf(this.activeState) < 1) return false;
+        if(this.activeState < 1) return false;
         else {
             //this.changeState(this.statesHistory[this.statesHistory.length - 2]);
-            this.activeState = this.statesHistory[this.statesHistory.length - 2];
+            this.activeState--;
             return true;
         }
     }
@@ -88,12 +88,21 @@ class FSM {
      * Returns false if redo is not available.
      * @returns {Boolean}
      */
-    redo() {}
+    redo() {
+        if(this.statesHistory.length < 2) return false;
+        else {
+            this.activeState++;
+            return true;
+        }
+    }
 
     /**
      * Clears transition history
      */
-    clearHistory() {}
+    clearHistory() {
+        this.activeState = 0;
+        this.statesHistory.splice(1, this.statesHistory.length - 1);
+    }
 }
 
 module.exports = FSM;
