@@ -92,6 +92,7 @@ class FSM {
         if(this.statesHistory.length < 2) return false;
         else {
             this.activeState++;
+            if (this.activeState > this.statesHistory.length - 1) return false;
             return true;
         }
     }
