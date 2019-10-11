@@ -4,6 +4,7 @@ class FSM {
      * @param config
      */
     constructor(config) {
+        this.initialState = config.initial;
         this.activeState = config.initial;
         this.states = [];
         this.transitions = [];
@@ -11,8 +12,8 @@ class FSM {
         {
             this.states.push(key);
             this.transitions.push(config.states[key].transitions);
-            //console.log(this.transitions);
         }  
+        this.statesHistory = [config.initial];
     }
 
     /**
@@ -28,7 +29,10 @@ class FSM {
      * @param state
      */
     changeState(state) {
-        if(this.states.includes(state)) this.activeState = state;
+        if(this.states.includes(state)) {
+            this.activeState = state;
+            this.statesHistory.push(state);
+        }
         else throw new Error;
     }
 
@@ -45,7 +49,9 @@ class FSM {
     /**
      * Resets FSM state to initial.
      */
-    reset() {}
+    reset() {
+        this.activeState = this.initialState;
+    }
 
     /**
      * Returns an array of states for which there are specified event transition rules.
@@ -53,14 +59,29 @@ class FSM {
      * @param event
      * @returns {Array}
      */
-    getStates(event) {}
+    getStates(event) {
+        if(event === undefined) return this.states;
+        let result = [];
+        for(let i = 0; i < this.transitions.length; i++) 
+        {
+            if(Object.keys(this.transitions[i]).includes(event)) result.push(this.states[i]);
+        }
+        return result;
+    }
 
     /**
      * Goes back to previous state.
      * Returns false if undo is not available.
      * @returns {Boolean}
      */
-    undo() {}
+    undo() {
+        if(this.statesHistory.indexOf(this.activeState) < 1) return false;
+        else {
+            //this.changeState(this.statesHistory[this.statesHistory.length - 2]);
+            this.activeState = this.statesHistory[this.statesHistory.length - 2];
+            return true;
+        }
+    }
 
     /**
      * Goes redo to state.
