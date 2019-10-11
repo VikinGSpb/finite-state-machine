@@ -30,8 +30,11 @@ class FSM {
      */
     changeState(state) {
         if(this.states.includes(state)) {
-            this.statesHistory.push(state);
-            this.activeState++;
+            if(state === this.statesHistory[this.activeState + 1]) this.activeState++;
+            else {
+                this.statesHistory.push(state);
+                this.activeState = this.statesHistory.length - 1;
+            }
         }
         else throw new Error;
     }
@@ -77,7 +80,6 @@ class FSM {
     undo() {
         if(this.activeState < 1) return false;
         else {
-            //this.changeState(this.statesHistory[this.statesHistory.length - 2]);
             this.activeState--;
             return true;
         }
